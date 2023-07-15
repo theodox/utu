@@ -1,31 +1,78 @@
 from pyodide.ffi import create_proxy
-
 import pyodide
-
 import js
 import os
-import csv
+import sqlite3
+from dataclasses import dataclass
+from typing import Sequence
 
-# todo: this should be a binary dump of a sqllite db
-with open("signlist.tsv", "r") as csvfile:
-    reader = csv.DictReader(csvfile, delimiter='\t')
-    cuneform = [r for r in reader if len(r['Unicode']) and r['worthington'] == 'TRUE']
-    
-print(cuneform[0])
-print(f"loaded {len(cuneform)} characters")
+
 
 def main():
+    
+    @dataclass
+    class CuneiformSign:
+        sign: str
+        borger: str
+        syllables: Sequence
+        logograms: Sequence
+        determinative: str = ''
+    
     class DB:
-        pointer = 0
-        rota = 0
 
-        def __init__(self):
+
+        def __init__(self, characters = 12):
             self.carousel = js.document.getElementById("mainCarousel")
-            
-            for idx, item in enumerate(self.carousel.getElementsByClassName("flash")):
-                item.innerHTML = cuneform[idx]['Unicode'].split()[-1]
+            self.database = sqlite3.connect('cuneiform.db')
+            self.cursor = self.database.cursor()
+            r = self.cursor.execute(f'SELECT DISTINCT sign, borger FROM signs ORDER BY RANDOM() LIMIT {characters}')
+            self.SIGNS = [self.get_character(c) for (c,*_) in r.fetchall()]
+            self.pointer = 0
+  
 
-            
+        # TODO -- why this no work?
+        def toggle(self, selector, val):
+            v = "visible" if val else "hidden"
+            e = js.document.querySelector(selector)
+            e.style.visibility = v
+            print(e, v)
+
+
+        def get_character(self, char):
+            syllabs = self.cursor.execute(
+                ''' 
+                SELECT syllable FROM 
+                    syllabic
+                WHERE
+                    syllabic.sign = ?
+                ''',
+                (char, )
+            ).fetchall()
+
+            logograms = self.cursor.execute(
+                '''
+                SELECT logogram FROM 
+                    logographic
+                WHERE
+                    logographic.sign = ?
+                ''', (char,)
+            ).fetchall()
+
+            signinfo = self.cursor.execute(
+                '''
+                SELECT * from  signs
+                WHERE sign = ?
+                ''', (char,)
+            ).fetchone()
+
+            return CuneiformSign(
+                signinfo[0],
+                signinfo[2],
+                tuple(k[0] for k in syllabs),
+                tuple(k[0] for k in logograms),
+                signinfo[3]
+            )
+
 
         def test(self, event):
             t = event.to
@@ -39,17 +86,24 @@ def main():
                 else:
                     self.pointer -= 1
 
-            next_card = cuneform[self.pointer]
-            print (next_card)
+            self.pointer %= len(self.SIGNS)
+
+            next_card =self.SIGNS[self.pointer]
 
             flashcard = event.relatedTarget.getElementsByClassName("flash")[0]
-            flashcard.innerHTML = next_card['Unicode'].split()[-1]
-        
-            main_caption = event.relatedTarget.getElementsByClassName("carousel-caption")[0]
+
+            self.format_card(flashcard, next_card)
+    
+        def format_card(self, flashcard, next_card):
+
+            flashcard.innerHTML = next_card.sign
+            self.toggle(".logograms", False)
+            self.toggle(".syllables", True)
+            main_caption = flashcard.getElementsByClassName("carousel-caption")[0]
             header = main_caption.getElementsByClassName('caption-header')[0]
             details = main_caption.getElementsByClassName('caption-details')[0]
-            header.innerHTML = next_card['Sign Name']
-            details.innerHTML = next_card['MesZL']
+            details.innerHTML = ", ".join(next_card.logograms)
+            header.innerHTML = ", ".join(next_card.syllables)
     
 
     db_proxy = create_proxy(DB())
@@ -57,3 +111,4 @@ def main():
 
     carousel = js.document.getElementById("mainCarousel")
     carousel.addEventListener("slide.bs.carousel", proxy)
+

@@ -12,8 +12,11 @@ class CuneiformSign:
     syllables: Tuple
     logograms: Tuple
     determinative: str = ''
+try:
 
-os.remove("cuneiform.db")
+    os.remove("cuneiform.db")
+except:
+    pass
 
 db = sqlite3.connect("cuneiform.db")
 cursor = db.cursor()
@@ -119,6 +122,10 @@ with open("sourcedata.tsv", "rt", encoding='utf-8') as srcfile:
             for j in logograms:
                 cursor.execute('''INSERT INTO logographic(sign, logogram) VALUES (?,?)''', (r['sign'], j))
 
+db.commit()
+print("committed")
+
+
 def get_character(char):
     syllabs = cursor.execute(
         ''' 
@@ -173,3 +180,6 @@ def find_syllable(syllab):
     return [a[0] for a in r]
 
 print (find_syllable('*al'.lower()))
+
+
+cursor.execute("")
