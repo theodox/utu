@@ -39,45 +39,34 @@
   <script type="text/javascript">
     async function main() {
       let pyodide = await loadPyodide();
-      console.log(pyodide.runPython(`
-from pyodide.ffi import create_proxy
-import js
-
-
-class DB:
-      pointer = 0
-      rota = 0
-      fred  = '𒇷 𒉺 𒀀 𒄑 𒍣 𒄿 𒁕 𒀀 𒇻 𒍑 𒋼 𒉺 𒉺 𒄴  𒄯 𒂊 𒃷 𒊩 𒈗 𒊏 𒀸 𒉿 𒀀 𒋻 𒀀 𒊏 𒀸 𒉺 𒀸 𒅆 𒆷 𒀸 𒋼 𒊑 𒀉 𒋾 𒌅 𒌋 𒉌 𒅖 𒌅 𒊻 𒍣 𒅖 𒀜 𒉺 𒀭 𒆪 𒍑 𒅈 𒌋𒉿𒀭𒍝𒁍'.split()
-
-      def test(self, event):
-        t = event.to
-        f = event.from_
-        delta = t - f 
-        if (abs(delta) == 1):
-          self.pointer += delta
-        else:
-          if t < f:
-            self.pointer += 1
-          else:
-            self.pointer -= 1
-        event.relatedTarget.getElementsByClassName("flash")[0].innerHTML = self.fred[self.pointer]
-
-db_proxy = create_proxy(DB())
-proxy = create_proxy(db_proxy.test)
-
-carousel = js.document.getElementById("mainCarousel")
-carousel.addEventListener("slide.bs.carousel", proxy);
-`)
-);
-return pyodide;
+      let mountDir = "/mnt";
+      pyodide.FS.mkdir(mountDir);
+      pyodide.FS.mount(pyodide.FS.filesystems.IDBFS, { root: "d:/prj/utu" }, mountDir);
+      await pyodide.runPythonAsync(`
+    from pyodide.http import pyfetch
+    response = await pyfetch("http://127.0.0.1:8000/utu/cuneiform.db")
+    with open("cuneiform.db", "wb") as f:
+        f.write(await response.bytes())
+`);
+    await pyodide.runPythonAsync(`
+        from pyodide.http import pyfetch
+        response = await pyfetch("http://127.0.0.1:8000/utu.py")
+        with open("utu.py", "wb") as f:
+            f.write(await response.bytes())
+    `);
+      
+      let utu = pyodide.pyimport("utu");
+      utu.main();
     }
     main();
+    ;
   </script>
   <div id="main">
     <div class="container-fluid justify-content-center">
         <div class="row">
           <div class="col-md">
-          <h1 class="text-center">𒉏𒄈 𒁾𒁍𒌝 <small class="text-muted">Akkadian flashcards</small></h1>
+          <h1 class="text-center">𒉏𒄈 𒁾𒁍𒌝</h1>
+          <h3 class="text-center text-muted">Akkadian flashcards</h3>
         </div>
         </div>
     </div>
@@ -95,8 +84,8 @@ return pyodide;
             <p class="flash">𒂵</p>
             </div>
             <div class="carousel-caption d-none d-md-block aria-hidden=true">
-              <h5>First slide label</h5>
-              <p>Some representative placeholder content for the first slide.</p>
+              <h5 class="caption-header">First slide label</h5>
+              <p class="caption-details">Some representative placeholder content for the first slide.</p>
             </div>
           </div>
           <div class="carousel-item ">
@@ -104,8 +93,8 @@ return pyodide;
               <p class="flash">𒄥</p>
               </div>
               <div class="carousel-caption d-none d-md-block">
-              <h5>Second slide label</h5>
-              <p>Some representative placeholder content for the second slide.</p>
+              <h5 class="caption-header">Second slide label</h5>
+              <p class="caption-details">Some representative placeholder content for the second slide.</p>
             </div>
           </div>
           <div class="carousel-item">
@@ -113,8 +102,8 @@ return pyodide;
               <p class="flash">𒈗</p>
               </div>            
               <div class="carousel-caption d-none d-md-block">
-              <h5>Third slide label</h5>
-              <p>Some representative placeholder content for the third slide.</p>
+              <h5 class="caption-header">Third slide label</h5>
+              <p class="caption-details">Some representative placeholder content for the third slide.</p>
             </div>
           </div>
         </div>
