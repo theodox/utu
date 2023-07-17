@@ -30,14 +30,6 @@ def main():
             self.pointer = 0
   
 
-        # TODO -- why this no work?
-        def toggle(self, selector, val):
-            v = "visible" if val else "hidden"
-            e = js.document.querySelector(selector)
-            e.style.visibility = v
-            print(e, v)
-
-
         def get_character(self, char):
             syllabs = self.cursor.execute(
                 ''' 
@@ -90,21 +82,22 @@ def main():
 
             next_card =self.SIGNS[self.pointer]
 
-            flashcard = event.relatedTarget.getElementsByClassName("flash")[0]
+            flashcard = event.relatedTarget
+            glyph = flashcard.getElementsByClassName("flash")[0]
+            glyph.innerHTML = next_card.sign
 
-            self.format_card(flashcard, next_card)
-    
-        def format_card(self, flashcard, next_card):
 
-            flashcard.innerHTML = next_card.sign
-            self.toggle(".logograms", False)
-            self.toggle(".syllables", True)
-            main_caption = flashcard.getElementsByClassName("carousel-caption")[0]
-            header = main_caption.getElementsByClassName('caption-header')[0]
-            details = main_caption.getElementsByClassName('caption-details')[0]
-            details.innerHTML = ", ".join(next_card.logograms)
-            header.innerHTML = ", ".join(next_card.syllables)
-    
+            for disp in flashcard.getElementsByClassName('card-body'):
+                js.console.log (disp)
+                
+
+            for syl in flashcard.getElementsByClassName("syllables"):
+                js.console.log(syl)
+                syl.innerHTML = ' '.join(next_card.syllables)
+            
+            for log in  flashcard.getElementsByClassName("logograms"):
+                js.console.log(log)
+                log.innerHTML = ' '.join((str(x) for x in next_card.logograms))
 
     db_proxy = create_proxy(DB())
     proxy = create_proxy(db_proxy.test)
