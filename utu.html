@@ -22,13 +22,16 @@
       display: flex;
       height: 1024px;
       border: none;
-      background-color: dimgray;
+      background-color: transparent;
     }
 
     .flash {
       font-family: 'Noto+Sans+Cuneiform', serif;
       font-size: 36vw;
       padding: 2rem;
+      box-shadow: none;
+      width: 75%;
+      border: none;
     }
 
     .signno {
@@ -116,8 +119,14 @@
             </div>
 
             <!-- center-->
-            <div class="card d-md-flex justify-content-center shadow" style="width: 100%;">
-              <p class="flash ">𒂵</p>
+            <div class="card d-md-flex justify-content-center btn" style="width: 100%;">
+              <button class="flash btn" 
+              id="reveal1"
+              data-bs-toggle="collapse" 
+              role="button"
+              aria-expanded="true" 
+              data-bs-target="#footer1"
+              aria-controls="footer1">?</button>
             </div>
 
             <!-- footer -->
@@ -127,9 +136,8 @@
               </div>
               <div class="col-10">
 
-                <div class="carousel-caption aria-hidden=true">
-
-                  <div class="row">
+                <div class="collapse carousel-caption" id="footer1" data-bs-toggle="collapse">
+                   <div class="row">
                     <div class="col">
                       <div class="collapse multicollapse" id="syllableCollapse1" data-toggle="collapse">
                         <div id="syllables1" class="card-body" >
