@@ -21,13 +21,17 @@ def main():
     class DB:
 
 
-        def __init__(self, characters = 12):
+        def __init__(self, characters = 18):
             self.carousel = js.document.getElementById("mainCarousel")
             self.database = sqlite3.connect('cuneiform.db')
             self.cursor = self.database.cursor()
             r = self.cursor.execute(f'SELECT DISTINCT sign, borger FROM signs ORDER BY RANDOM() LIMIT {characters}')
             self.SIGNS = [self.get_character(c) for (c,*_) in r.fetchall()]
             self.pointer = 0
+
+            self.always_on = False
+            self.show_logograms = True
+            self.show_syllables = True
   
 
         def get_character(self, char):
@@ -65,8 +69,33 @@ def main():
                 signinfo[3]
             )
 
+        def toggle_logograms(self, event):
+            self.show_logograms = event.target.checked
+            for eachrow in self.carousel.getElementsByClassName('display-logograms'):
+                if (self.show_logograms):
+                    eachrow.classList.remove("collapse")
+                else:
+                    eachrow.classList.add("collapse")
 
-        def test(self, event):
+        def toggle_syllables(self, event):
+            self.show_syllables = event.target.checked
+            for eachrow in self.carousel.getElementsByClassName('display-syllables'):
+                if (self.show_syllables):
+                    eachrow.classList.remove("collapse")
+                else:
+                    eachrow.classList.add("collapse")
+
+        def toggle_always_on(self, event):
+            self.always_on = event.target.checked
+            for disp in self.carousel.getElementsByClassName('carousel-caption'):
+                if self.always_on:
+                    disp.classList.add("show")
+                else:
+                    disp.classList.remove("show")
+ 
+           
+
+        def transition(self, event):
             t = event.to
             f = event.from_
             delta = t - f
@@ -83,25 +112,43 @@ def main():
             next_card =self.SIGNS[self.pointer]
 
             flashcard = event.relatedTarget
+
+            for sign_no in flashcard.getElementsByClassName("borger"):
+                sign_no.innerHTML = next_card.borger
+
             glyph = flashcard.getElementsByClassName("flash")[0]
             glyph.innerHTML = next_card.sign
 
 
-            for disp in flashcard.getElementsByClassName('card-body'):
-                js.console.log (disp)
+            for disp in flashcard.getElementsByClassName('carousel-caption'):
+                if self.always_on:
+                    disp.classList.add("show")
+                else:
+                    disp.classList.remove("show")
                 
-
             for syl in flashcard.getElementsByClassName("syllables"):
-                js.console.log(syl)
                 syl.innerHTML = ' '.join(next_card.syllables)
-            
+
+               
             for log in  flashcard.getElementsByClassName("logograms"):
-                js.console.log(log)
                 log.innerHTML = ' '.join((str(x) for x in next_card.logograms))
 
     db_proxy = create_proxy(DB())
-    proxy = create_proxy(db_proxy.test)
+    transition_proxy = create_proxy(db_proxy.transition)
 
     carousel = js.document.getElementById("mainCarousel")
-    carousel.addEventListener("slide.bs.carousel", proxy)
+    carousel.addEventListener("slide.bs.carousel", transition_proxy)
+
+    toggle_s_proxy = create_proxy(db_proxy.toggle_syllables)
+    syllableCheck = js.document.getElementById("showSyllables")
+    syllableCheck.addEventListener('input', toggle_s_proxy)
+
+    toggle_logo_proxy = create_proxy(db_proxy.toggle_logograms)
+    logoCheck  = js.document.getElementById("showLogograms")
+    logoCheck.addEventListener('input', toggle_logo_proxy)
+
+    toggle_always_proxy = create_proxy(db_proxy.toggle_always_on)
+    alwaysOnCheck  = js.document.getElementById("alwaysShow")
+    alwaysOnCheck.addEventListener('change', toggle_always_proxy)
+
 
