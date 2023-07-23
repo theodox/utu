@@ -11,6 +11,16 @@
   <title>Utu  𒀭𒌓</title>
 
   <style>
+
+    .loadingtext {
+      font-size: large;
+      font-weight: lighter;
+      font-family: sans-serif;
+      color: darkgrey;
+      position: relative;
+      top: -20%;
+     }
+
     a:link {
       color: lightsteelblue;
     }
@@ -138,7 +148,7 @@
       pyodide.FS.mount(pyodide.FS.filesystems.IDBFS, { root: "d:/prj/utu" }, mountDir);
       await pyodide.runPythonAsync(`
     from pyodide.http import pyfetch
-    response = await pyfetch("http://127.0.0.1:8000/cuneiform.db")
+    response = await pyfetch("cuneiform.db")
     with open("cuneiform.db", "wb") as f:
         f.write(await response.bytes())
     print ('database loaded')
@@ -147,7 +157,7 @@
       await pyodide.runPythonAsync(`
         
         from pyodide.http import pyfetch
-        response = await pyfetch("http://127.0.0.1:8000/utu.py")
+        response = await pyfetch("utu.py")
         with open("utu.py", "wb") as f:
             f.write(await response.bytes())
         print ('python code loaded')
@@ -197,7 +207,7 @@
                 <div class="col">
                   <div class="signno">
                     <a href="#" class="wikilink" target="_blank" rel="noopener noreferrer">
-                      <p><span>mesZL </span><span class="borger">123</span></p>
+                      <p><span>mesZL </span><span class="borger">?</span></p>
                     </a>
                   </div>
                 </div>
@@ -207,7 +217,7 @@
               <!-- center-->
               <div class="card d-md-flex justify-content-center btn align-top" style="width: 100%;">
                 <button class="flash btn hover" id="reveal1" data-bs-toggle="collapse" role="button"
-                  aria-expanded="true" data-bs-target="#footer1" aria-controls="footer1">?</button>
+                  aria-expanded="true" data-bs-target="#footer1" aria-controls="footer1"><span class="loadingtext">initializing...</span></button>
                 <div class="hide">Click to show/hide meanings</div>
 
               </div>

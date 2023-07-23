@@ -152,7 +152,9 @@ def main():
             next_card =self.SIGNS[self.pointer]
 
             flashcard = event.relatedTarget
+            self.update_flashcard(flashcard, next_card)
 
+        def update_flashcard(self, flashcard, next_card):
             for sign_no in flashcard.getElementsByClassName("borger"):
                 sign_no.innerHTML = next_card.borger
 
@@ -191,10 +193,17 @@ def main():
                 flash.addEventListener('mouseover', hover_proxy)
 
     db_proxy = create_proxy(Utu())
-    transition_proxy = create_proxy(db_proxy.transition)
 
+
+    transition_proxy = create_proxy(db_proxy.transition)
     carousel = js.document.getElementById("mainCarousel")
     carousel.addEventListener("slide.bs.carousel", transition_proxy)
+
+    for doc in js.document.getElementsByClassName("carousel-item"):
+        next_card = db_proxy.SIGNS[0]
+        db_proxy.update_flashcard(doc, next_card)
+
+
 
     toggle_s_proxy = create_proxy(db_proxy.toggle_syllables)
     syllableCheck = js.document.getElementById("showSyllables")
@@ -209,3 +218,4 @@ def main():
     alwaysOnCheck.addEventListener('change', toggle_always_proxy)
 
     db_proxy.hook_hovers()
+
