@@ -5,6 +5,7 @@ import os
 import sqlite3
 from dataclasses import dataclass
 from typing import Sequence
+from urllib.parse import urlencode 
 
 
 
@@ -115,6 +116,11 @@ def main():
 
             for sign_no in flashcard.getElementsByClassName("borger"):
                 sign_no.innerHTML = next_card.borger
+
+            for link in flashcard.getElementsByClassName("wikilink"):
+                e = urlencode({"x": next_card.sign})
+                link.href =  f"https://en.wiktionary.org/wiki/{e[2:]}"
+   
 
             glyph = flashcard.getElementsByClassName("flash")[0]
             glyph.innerHTML = next_card.sign
