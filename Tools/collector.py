@@ -4,6 +4,10 @@ import unicodedata
 import re
 import csv
 
+'''
+This script was used in the original scraping process.
+'''
+
 if __name__ == '__main__':
     url = 'http://home.zcu.cz/~ksaskova/ListOfCuneiformSigns.html'
     #header = {'Accept-encoding': 'utf-16'}

@@ -5,6 +5,11 @@ import string
 from dataclasses import dataclass
 from typing import Tuple
 
+"""
+this script compiles the database from the sourcedata.tsv into sqllite
+"""
+
+
 @dataclass
 class CuneiformSign:
     sign: str
